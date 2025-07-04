@@ -1,4 +1,4 @@
-name: CI
+name: Pre-commit CI
 
 on:
   push:
@@ -31,10 +31,16 @@ jobs:
           python-version: "3.11"
 
       - name: Install Poetry
-        run: pip install poetry
+        run: |
+          pip install poetry
+          poetry self add poetry_plugin_export
 
       - name: Install dependencies
-        run: poetry install --with dev --no-root
+        run: |
+          poetry export -f requirements.txt --without-hashes --all-groups -o requirements.txt
+          pip install -r requirements.txt
 
       - name: Run pre-commit.ci-lite
         uses: pre-commit-ci/lite-action@5d6cc0eb514c891a40562a58a8e71576c5c7fb43 # pre-commit-ci/lite-action@v1.1.0
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
