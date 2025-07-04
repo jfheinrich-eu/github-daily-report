@@ -47,9 +47,47 @@ pylint = "^3.3.7"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poe.tasks]
-lint = "pre-commit run --all-files"
-
 [project.entry-points."poetry.application.plugin"]
 export = "poetry_export.plugin:ExportPlugin"
 poethepoet = "poethepoet.plugin:PoePlugin"
+git_version = "poetry_git_version_plugin.plugin:GitVersionPlugin"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra --tb=short --strict-markers --cov=daily_report --cov-report=term-missing --cov-report=html:coverage"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+pythonpath = ["src"]
+testpaths = ["tests"]
+log_cli = true
+log_cli_level = "INFO"
+
+[tool.coverage.run]
+branch = true
+source = ["daily_report"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[[tool.poetry.source]]
+name = "pypi-public"
+url = "https://pypi.org/simple/"
+
+[tool.flake8]
+max_line_length = 88
+ignore = ["E501", "E402"]
+inline-quotes = "double"
+exclude = [".git", "__pycache__", "build", "dist", ".poetry"]
+
+[tool.poetry-git-version-plugin]
+release_type = "tag"
+
+[tool.poe.tasks]
+test = "pytest"
+build = "poetry build"
+serve = "python -m http.server -d ./coverage"
+pre-commit = "pre-commit run --all-files"
+requirements = "poetry export -f requirements.txt --without-hashes --all-groups -o requirements.txt"
+lint = "flake8 ."
