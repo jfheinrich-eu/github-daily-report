@@ -83,6 +83,12 @@ ignore = ["E501", "E402"]
 inline-quotes = "double"
 exclude = [".git", "__pycache__", "build", "dist", ".poetry"]
 
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+include = "\\.pyi?$"
+check = false
+
 [tool.poetry-git-version-plugin]
 release_type = "tag"
 
