@@ -52,14 +52,14 @@ jobs:
       - name: Upload coverage report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: coverage-xml
-          path: coverage.xml
+          name: cov.xml
+          path: coverage/
 
       - name: Display coverage in PR (if available)
         if: github.event_name == 'pull_request'
         uses: 5monkeys/cobertura-action@ee5787cc56634acddedc51f21c7947985531e6eb # v14
         with:
-          path: coverage.xml
+          path: coverage/cov.xml
           minimum_coverage: 80
 
       - name: Upload results to Codecov
