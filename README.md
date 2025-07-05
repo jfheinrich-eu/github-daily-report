@@ -21,8 +21,12 @@
 <h2>Table of Contents</h2>
 
 - [Installation](#installation)
+  - [As a GitHub Action](#as-a-github-action)
+  - [Local Development](#local-development)
 - [Description](#description)
 - [Usage](#usage)
+  - [As a GitHub Action](#as-a-github-action-1)
+  - [Output](#output)
 - [Credits](#credits)
 
 ## Installation
@@ -33,7 +37,7 @@ Add the following to your workflow YAML to use the Daily Report Action as a Dock
 
 ```yaml
 - name: Run Daily Report
-  uses: jfheinrich-eu/daily-report@v1.0.0
+  uses: jfheinrich-eu/github-daily-report@4d27d4493fe8d12d4e742f3f889790c9d8ded4a7  # v1.0.1
   with:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     REPO_NAME: "owner/repo"
