@@ -106,7 +106,7 @@ release_type = "tag"
 [tool.poe.tasks]
 test = "pytest"
 build = "poetry build"
-serve = "python -m http.server -d ./coverage"
+serve = "python -m http.server -d ./coverage/cov_html"
 pre-commit = "pre-commit run --all-files"
 requirements = "poetry export -f requirements.txt --without-hashes --all-groups -o requirements.txt"
 lint = "flake8 ."
