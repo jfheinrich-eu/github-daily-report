@@ -110,3 +110,7 @@ serve = "python -m http.server -d ./coverage"
 pre-commit = "pre-commit run --all-files"
 requirements = "poetry export -f requirements.txt --without-hashes --all-groups -o requirements.txt"
 lint = "flake8 ."
+readme = "python .github/scripts/update_readme_action_reference.py"
+format_black = "black ."
+format_isort = "isort ."
+format = ["format_black", "format_isort"]
