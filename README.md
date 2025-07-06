@@ -7,8 +7,10 @@
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
 ![Maintainer](https://img.shields.io/badge/maintainer-@jfheinrich-blue)
-[![GitHub Issues](https://img.shields.io/github/issues/jfheinrich-eu/daily-report.svg)](https://github.com/jfheinrich-eu/daily-report/issues)
-[![GitHub pull-requests](https://img.shields.io/github/issues-pr/jfheinrich-eu/daily-report.svg)](https://GitHub.com/Naereen/StrapDown.js/pull/)
+[![GitHub Issues](https://img.shields.io/github/issues/jfheinrich-eu/github-daily-report.svg)](https://github.com/jfheinrich-eu/github-daily-report/issues)
+[![GitHub pull-requests](https://img.shields.io/github/issues-pr/jfheinrich-eu/github-daily-report.svg)](https://GitHub.com/Naereen/StrapDown.js/pull/)
+[![codecov](https://codecov.io/gh/jfheinrich-eu/github-daily-report/graph/badge.svg?token=aMeOlgalvx)](https://codecov.io/gh/jfheinrich-eu/github-daily-report)
+![GitHub Release](https://img.shields.io/github/v/release/jfheinrich-eu/github-daily-report)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 </div>
