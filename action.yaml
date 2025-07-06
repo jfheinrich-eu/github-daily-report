@@ -55,9 +55,10 @@ runs:
       run: |
         pip install poetry
         poetry self add poetry_plugin_export
-        poetry export -f requirements.txt --without-hashes --all-groups -o requirements-${{ github.run_id }}.txt
-        pip install -r requirements-${{ github.run_id }}.txt
-        rm -rf requirements-${{ github.run_id }}.txt
+        export RUN_ID=${{ github.run_id }}
+        poetry export -f requirements.txt --without-hashes --all-groups -o requirements-$RUN_ID.txt
+        pip install -r requirements-$RUN_ID.txt
+        rm -rf requirements-$RUN_ID.txt
     - name: Run daily report generation
       id: generate_report
       shell: bash
