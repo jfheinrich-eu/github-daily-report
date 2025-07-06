@@ -1,4 +1,4 @@
-name: Release
+name: Bump and Tag Version Workflow
 
 permissions:
   contents: write
