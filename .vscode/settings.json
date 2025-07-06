@@ -9,5 +9,6 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true
-    }
+    },
+    "commit-message-editor.view.saveAndClose": true
 }
