@@ -47,9 +47,9 @@ jobs:
           mask_secrets: "EMAIL_PASSWORD,OPENAI_API_KEY"
 
       - name: Build and run Daily Report Action
-        uses: ./
         id: daily_report
-        env:
+        uses: ./
+        with:
           GITHUB_TOKEN: ${{ steps.setup-secrets-gh-token.outputs.secret1 }}
           REPO_NAME: ${{ github.repository }}
           EMAIL_SENDER: ${{ steps.setup-secrets.outputs.secret1 }}

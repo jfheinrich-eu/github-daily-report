@@ -10,5 +10,7 @@
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true
     },
-    "commit-message-editor.view.saveAndClose": true
+    "commit-message-editor.view.saveAndClose": true,
+    "githubLocalActions.actCommand": "gh act",
+    "githubLocalActions.dockerDesktopPath": "/mnt/c/Program\\ Files/Rancher\\ Desktop/Rancher\\ Desktop.exe"
 }
