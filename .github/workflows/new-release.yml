@@ -47,7 +47,6 @@ jobs:
         run: |
           pip install --upgrade pip
           python .github/scripts/update_readme_action_reference.py
-          git add --dry-run .
 
       - name: Create Release
         uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
@@ -60,29 +59,22 @@ jobs:
             ## Changes
             ${{ steps.changelog.outputs.changes }}
 
-      - name: Commit and push CHANGELOG.md and README.md to new branch
-        id: auto-commit-push
-        if: steps.changelog.outputs.changes != ''
+      - name: Check if auto-commit and push is needed
+        id: check-auto-commit-push
         run: |
           set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          branch="changelog-update-${{ github.run_id }}"
-          git add --dry-run .
-          git checkout -b "$branch"
-          git add --verbose CHANGELOG.md README.md
-          if git diff --cached --quiet; then
+          CHANGED_FILES="$(git add --dry-run .)"
+          if [[ -z "$CHANGED_FILES" ]]; then
             echo "No changes to commit."
             echo "auto-commit-push=false" >> $GITHUB_OUTPUT
-            exit 0
+          else
+            echo "Changes detected, proceeding with commit and push."
+            echo "auto-commit-push=true" >> $GITHUB_OUTPUT
           fi
-          git commit -m "docs: update CHANGELOG.md and README.md for ${{ github.ref_name }} [skip ci]"
-          git push origin HEAD:refs/heads/"$branch"
-          echo "auto-commit-push=true" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         id: cpr
-        if: steps.auto-commit-push.outputs.auto-commit-push == 'true'
+        if: steps.check-auto-commit-push.outputs.auto-commit-push == 'true'
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
