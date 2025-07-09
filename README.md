@@ -39,7 +39,7 @@ Add the following to your workflow YAML to use the Daily Report Action as a Dock
 
 ```yaml
 - name: Run Daily Report
-  uses: jfheinrich-eu/github-daily-report@4d27d4493fe8d12d4e742f3f889790c9d8ded4a7  # v1.0.1
+  uses: jfheinrich-eu/github-daily-report@c296b18dc07d13734f91ad617149bceade53ba55  # v1.1.3
   with:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     REPO_NAME: "owner/repo"
