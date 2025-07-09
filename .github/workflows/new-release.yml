@@ -42,19 +42,12 @@ jobs:
         with:
           token: ${{ github.token }}
           tag: ${{ github.ref_name }}
-          includeInvalidCommits: true
-
-      - name: Write changelog changes to file
-        id: changelog-changes
-        if: steps.changelog.outputs.changes != ''
-        env:
-          CHANGELOG: ${{ steps.changelog.outputs.changes }}
-        run: echo "${CHANGELOG}" >> CHANGELOG-changes.md
 
       - name: Update README action reference
         run: |
           pip install --upgrade pip
           python .github/scripts/update_readme_action_reference.py
+          git add --dry-run .
 
       - name: Create Release
         uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
@@ -63,7 +56,9 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           release_name: "Release ${{ github.ref_name }}"
-          body_path: CHANGELOG-changes.md
+          body: |
+            ## Changes
+            ${{ steps.changelog.outputs.changes }}
 
       - name: Commit and push CHANGELOG.md and README.md to new branch
         id: auto-commit-push
@@ -73,8 +68,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           branch="changelog-update-${{ github.run_id }}"
+          git add --dry-run .
           git checkout -b "$branch"
-          git add CHANGELOG.md README.md
+          git add --verbose CHANGELOG.md README.md
           if git diff --cached --quiet; then
             echo "No changes to commit."
             echo "auto-commit-push=false" >> $GITHUB_OUTPUT
@@ -90,7 +86,7 @@ jobs:
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "docs: Update CHANGELOG.md for ${{ github.ref_name }}"
+          title: "docs: Update CHANGELOG.md and README.md for ${{ github.ref_name }}"
           body: "Automated change log and readme update for release.\n\nThis PR updates the CHANGELOG.md and README.md files with the latest changes from the release.\n\nChanges:\n${{ steps.changelog.outputs.changes }}"
           base: main
           branch: changelog-update-${{ github.run_id }}
