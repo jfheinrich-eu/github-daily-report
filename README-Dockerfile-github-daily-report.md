@@ -1,4 +1,4 @@
-# jfheinrich/github-daily-report Image
+# jfheinrich/github-daily-report Docker Image
 
 
 ## Overview
