@@ -2,11 +2,27 @@
 
 import os
 from unittest.mock import MagicMock, patch
+import tempfile
 
 import pytest
 
 from daily_report.daily_reporter import DailyReporter
 from daily_report.env_check import EnvCheckError
+
+
+from typing import Generator
+
+
+@pytest.fixture
+def github_output_file() -> Generator[str, None, None]:
+    """Creates a temporary file for GITHUB_OUTPUT and cleans it up after the test."""
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmpfile:
+        os.environ["GITHUB_OUTPUT"] = tmpfile.name
+        yield tmpfile.name  # Type: str
+    # Cleanup after test
+    if os.path.exists(tmpfile.name):
+        os.remove(tmpfile.name)
+    os.environ.pop("GITHUB_OUTPUT", None)
 
 
 def cleanup_report_file() -> None:
@@ -43,6 +59,7 @@ def test_run_sends_email(
     mock_openai: MagicMock,
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
+    github_output_file: str,
 ) -> None:
     """Test that DailyReporter.run sends an email and writes the report file."""
     env = valid_env()
@@ -66,9 +83,19 @@ def test_run_sends_email(
 
     mock_open.return_value.__enter__.return_value = MagicMock()
 
-    with patch("daily_report.daily_reporter.smtplib.SMTP"):
-        reporter = DailyReporter()
-        reporter.run()
+    with (
+        patch("builtins.print"),
+        patch("sys.exit", side_effect=SystemExit) as mock_exit,
+    ):
+        with pytest.raises(SystemExit):
+            with patch("daily_report.daily_reporter.smtplib.SMTP"):
+                reporter = DailyReporter()
+                reporter.run()
+            with open(github_output_file) as f:
+                content = f.read()
+                assert "report" in content
+        mock_exit.assert_called_once()
+
     # cleanup_report_file()
 
 
@@ -79,6 +106,7 @@ def test_analyze_commits_with_gpt_empty(
     mock_openai: MagicMock,  # pylint: disable=unused-argument
     mock_github: MagicMock,  # pylint: disable=unused-argument
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
+    github_output_file: str,  # pylint: disable=unused-argument
 ) -> None:
     """Test analyze_commits_with_gpt returns correct message for empty commit list."""
     env = valid_env()
@@ -98,6 +126,7 @@ def test_analyze_commits_with_gpt_empty_response(
     mock_openai: MagicMock,
     mock_github: MagicMock,  # pylint: disable=unused-argument
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
+    github_output_file: str,  # pylint: disable=unused-argument
 ) -> None:
     """Test analyze_commits_with_gpt returns correct message for empty GPT response."""
     env = valid_env()
@@ -123,6 +152,7 @@ def test_send_email_password_missing(
     mock_openai: MagicMock,  # pylint: disable=unused-argument
     mock_github: MagicMock,  # pylint: disable=unused-argument
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
+    github_output_file: str,  # pylint: disable=unused-argument
 ) -> None:
     """Test send_email raises ValueError if EMAIL_PASSWORD is missing."""
     env = valid_env()
@@ -144,6 +174,7 @@ def test_collect_commits(
     mock_openai: MagicMock,  # pylint: disable=unused-argument
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
+    github_output_file: str,  # pylint: disable=unused-argument
 ) -> None:
     """Test collect_commits returns a list of commit dictionaries."""
     env = valid_env()
@@ -169,7 +200,10 @@ def test_collect_commits(
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
-def test_init_env_error(mock_check_env_vars: MagicMock) -> None:
+def test_init_env_error(
+    mock_check_env_vars: MagicMock,
+    github_output_file: str,  # pylint: disable=unused-argument
+) -> None:
     """Test that DailyReporter exits if environment validation fails."""
     mock_check_env_vars.side_effect = EnvCheckError("fail")
     with (

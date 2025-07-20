@@ -4,7 +4,23 @@ import os
 import tempfile
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from daily_report.daily_reporter import DailyReporter
+
+
+from typing import Generator
+
+
+@pytest.fixture
+def github_output_file() -> Generator[str, None, None]:
+    """Creates a temporary file for GITHUB_OUTPUT and cleans it up after the test."""
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmpfile:
+        os.environ["GITHUB_OUTPUT"] = tmpfile.name
+        yield tmpfile.name  # Type: str
+    if os.path.exists(tmpfile.name):
+        os.remove(tmpfile.name)
+    os.environ.pop("GITHUB_OUTPUT", None)
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
@@ -16,6 +32,7 @@ def test_github_output_written(
     mock_openai: MagicMock,
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
+    github_output_file: str,  # pylint: disable=unused-argument
 ) -> None:
     """Test that the GitHub Actions output file is written with the report content."""
     env = {
@@ -45,10 +62,11 @@ def test_github_output_written(
         MagicMock(message=MagicMock(content="Test-Report"))
     ]
 
-    with tempfile.NamedTemporaryFile(mode="r+", delete=False) as tmpfile:
-        os.environ["GITHUB_OUTPUT"] = tmpfile.name
-        reporter = DailyReporter()
+    reporter = DailyReporter()
+    with pytest.raises(SystemExit):
         reporter.run()
+    with open(github_output_file) as tmpfile:
+        # Check if the report content is written to the GITHUB_OUTPUT file
         tmpfile.seek(0)
         content = tmpfile.read()
         assert "Test-Report" in content
