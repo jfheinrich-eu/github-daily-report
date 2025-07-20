@@ -146,7 +146,7 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
             server.sendmail(self.email_sender, self.email_receiver, msg.as_string())
 
     @staticmethod
-    def _sanitize_filename(filename: str) -> str:
+    def sanitize_filename(filename: str) -> str:
         """Sanitize filename to prevent path injection."""
         # Remove directory components and allow only safe chars
         filename = os.path.basename(filename)
@@ -158,7 +158,7 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
         try:
             today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             # Sanitize repo_name for filename to prevent path injection
-            safe_repo_name = self._sanitize_filename(self.repo_name.replace("/", "-"))
+            safe_repo_name = self.sanitize_filename(self.repo_name.replace("/", "-"))
             filename = f"{today}-{safe_repo_name}.md"
             os.environ["DAILY_REPORT_FILENAME"] = filename
 

@@ -29,14 +29,6 @@ inputs:
   SMTP_PORT:
     description: "SMTP port"
     required: true
-  UPLOAD_REPORT:
-    description: "Upload the report as an artifact"
-    required: false
-    default: "true"
-  REPORT_FILE_NAME:
-    description: "Name of the report file to be uploaded"
-    required: false
-    default: "daily_report.md"
 outputs:
   report:
     description: "The generated Markdown report"

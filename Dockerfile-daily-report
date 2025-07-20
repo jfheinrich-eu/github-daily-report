@@ -52,6 +52,14 @@ RUN pip install poetry && \
     poetry self add poetry-plugin-export && \
     poetry export --without-hashes -f requirements.txt -o /app/requirements.txt && \
     pip install --no-cache-dir --target /app -r /app/requirements.txt
+WORKDIR /app
+RUN find . -name "*.pyc" -delete && \
+    find . -name "__pycache__" -delete && \
+    find . -name "*.pyo" -delete && \
+    find . -name ".pytest_cache" -delete && \
+    find . -name ".mypy_cache" -delete && \
+    find . -name ".coverage" -delete && \
+    find . -name "coverage.xml" -delete
 
 # Stage 4: Final application image
 FROM python:3.12-alpine AS final

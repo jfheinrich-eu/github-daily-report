@@ -1,26 +1,12 @@
 """Unit test for verifying GitHub Actions output file integration in DailyReporter."""
 
 import os
-import tempfile
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from daily_report.daily_reporter import DailyReporter
-
-
-from typing import Generator
-
-
-@pytest.fixture
-def github_output_file() -> Generator[str, None, None]:
-    """Creates a temporary file for GITHUB_OUTPUT and cleans it up after the test."""
-    with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmpfile:
-        os.environ["GITHUB_OUTPUT"] = tmpfile.name
-        yield tmpfile.name  # Type: str
-    if os.path.exists(tmpfile.name):
-        os.remove(tmpfile.name)
-    os.environ.pop("GITHUB_OUTPUT", None)
+from tests.conftest import valid_env
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
@@ -32,20 +18,12 @@ def test_github_output_written(
     mock_openai: MagicMock,
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
-    github_output_file: str,  # pylint: disable=unused-argument
+    github_output_path: str,  # pylint: disable=redefined-outer-name
 ) -> None:
     """Test that the GitHub Actions output file is written with the report content."""
-    env = {
-        "GITHUB_TOKEN": "token",
-        "REPO_NAME": "owner/repo",
-        "EMAIL_SENDER": "sender@example.com",
-        "EMAIL_USER": "sender@example.com",
-        "EMAIL_RECEIVER": "receiver@example.com",
-        "EMAIL_PASSWORD": "pw",
-        "OPENAI_API_KEY": "sk-xxx",
-        "SMTP_SERVER": "smtp.example.com",
-        "SMTP_PORT": "587",
-    }
+    env = valid_env(github_output_path=github_output_path)
+    for k, v in env.items():
+        os.environ[k] = v
     mock_check_env_vars.return_value = env
 
     mock_repo = MagicMock()
@@ -65,11 +43,61 @@ def test_github_output_written(
     reporter = DailyReporter()
     with pytest.raises(SystemExit):
         reporter.run()
-    with open(github_output_file) as tmpfile:
+    with open(github_output_path, encoding="utf-8") as tmpfile:
         # Check if the report content is written to the GITHUB_OUTPUT file
         tmpfile.seek(0)
         content = tmpfile.read()
         assert "Test-Report" in content
+
+    # Clean up: remove the file
+    filename = os.environ.get("DAILY_REPORT_FILENAME")
+    assert filename is not None
+    assert os.path.exists(filename)
+    os.remove(filename)
+    assert not os.path.exists(filename)
+
+
+@patch("daily_report.daily_reporter.check_env_vars")
+@patch("daily_report.daily_reporter.Github")
+@patch("daily_report.daily_reporter.OpenAI")
+@patch("daily_report.daily_reporter.smtplib.SMTP")
+def test_multiline_github_output(
+    mock_smtp: MagicMock,  # pylint: disable=unused-argument
+    mock_openai: MagicMock,
+    mock_github: MagicMock,
+    mock_check_env_vars: MagicMock,
+    github_output_path: str,  # pylint: disable=redefined-outer-name
+) -> None:
+    """Test that DailyReporter.run writes multi-line output to GITHUB_OUTPUT."""
+    env = valid_env(github_output_path=github_output_path)
+    for k, v in env.items():
+        os.environ[k] = v
+    mock_check_env_vars.return_value = env
+
+    mock_repo = MagicMock()
+    mock_commit = MagicMock()
+    mock_commit.commit.message = "fix: bug"
+    mock_commit.commit.author.name = "dev"
+    mock_commit.html_url = "http://example.com"
+    mock_commit.sha = "abc1234"
+    mock_commit.commit.author.date = "2024-01-01"
+    mock_repo.get_commits.return_value = [mock_commit]
+    mock_github.return_value.get_repo.return_value = mock_repo
+
+    mock_openai.return_value.chat.completions.create.return_value.choices = [
+        MagicMock(message=MagicMock(content="Test-Report"))
+    ]
+
+    reporter = DailyReporter()
+    with pytest.raises(SystemExit):
+        reporter.run()
+
+    # Check multi-line output format in GITHUB_OUTPUT
+    with open(github_output_path, encoding="utf-8") as f:
+        content = f.read()
+        assert "report<<EOF" in content
+        assert "Test-Report" in content
+        assert "\nEOF" in content
 
     # Clean up: remove the file
     filename = os.environ.get("DAILY_REPORT_FILENAME")
