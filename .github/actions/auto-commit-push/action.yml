@@ -1,6 +1,9 @@
-name: secret_whisperer_dockerhub_registry
-description: "This action manages secrets for GitHub Actions workflows."
+name: auto-commit-push
+description: "Automatically commits and pushes changes to the repository."
 author: "Joerg Heinrich"
+branding:
+  icon: git-commit
+  color: green
 
 inputs:
   RUN_ID:
@@ -15,12 +18,13 @@ inputs:
 outputs:
   auto-commit-push:
     description: "The result of the auto-commit-push action."
-    value: "true"
+    value: ${{ steps.Auto_Commit_and_Push.outputs.auto-commit-push }}
 
 runs:
   using: "composite"
   steps:
     - name: Auto Commit and Push
+      id: Auto_Commit_and_Push
       env:
         RUN_ID: ${{ inputs.RUN_ID }}
         REF_NAME: ${{ inputs.REF_NAME }}

@@ -1,5 +1,5 @@
 # Stage 1: Build base image
-FROM python:3.12-alpine AS base
+FROM python:3.12.11-alpine3.22 AS base
 
 ENV GIT_VERSION=2.50.0
 
@@ -46,7 +46,7 @@ ENV PATH="/opt/git/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/git/lib"
 COPY pyproject.toml poetry.lock* /project/
 COPY src/ /project/src/
-ADD src /app
+COPY src /app
 WORKDIR /project
 RUN pip install poetry && \
     poetry self add poetry-plugin-export && \

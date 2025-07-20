@@ -1,5 +1,8 @@
-# jfheinrich/github-daily-report Docker Image
+<p align="center">
+ <img height=70px src="https://raw.githubusercontent.com/jfheinrich-eu/github-daily-report/main/assets/daily-report-logo.png" alt="Daily Report">
+</p>
 
+# jfheinrich/github-daily-report Docker Image
 
 ## Overview
 
@@ -19,10 +22,11 @@ This image provides a minimal Python 3.12 environment based on Alpine Linux, bun
 
 ## Usage
 
-Use in a Github workflow:
+Use in a Github workflow, optional with report upload as artifact:
 
 ```yaml
 - name: Run Daily Report
+  id: daily_report
   uses: jfheinrich-eu/github-daily-report@63196a129709dfe696458e3bea5b9cf893b3e611  # v1.1.4
   with:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -34,6 +38,24 @@ Use in a Github workflow:
     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     SMTP_SERVER: "smtp.example.com"
     SMTP_PORT: "587"
+- name: Create report file with date
+  id: create_report_file
+  if: ${{ steps.daily_report.outputs.report_status == 'success' }}
+  run: |
+    echo "Creating report file with date..."
+    REPORT_NAME="daily-report-$(date +'%Y-%m-%d').md"
+    report_file_name="${REPORT_NAME}""
+    echo "${{ steps.daily_report.outputs.report }}" >> "$report_file_name"
+    echo "Report file created: $report_file_name"
+    echo "report_file_created=success" >> $GITHUB_OUTPUT
+    echo "report_file_name=$report_file_name" >> $GITHUB_OUTPUT
+- name: Upload Daily Report
+  if: ${{ steps.daily_report.outputs.report_status == 'success' }} && ${{ steps.create_report_file.outputs.report_file_created == 'success' }}
+  uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+  with:
+    name: daily-report
+    path: ${{ steps.create_report_file.outputs.report_file_name }}
+
 ```
 
 ---
