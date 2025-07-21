@@ -43,8 +43,6 @@ def test_run_sends_email(
         MagicMock(message=MagicMock(content="Test-Report"))
     ]
 
-    # mock_open.return_value.__enter__.return_value = MagicMock()
-
     with (
         patch("builtins.print"),
         patch("sys.exit", side_effect=SystemExit) as mock_exit,
@@ -131,7 +129,7 @@ def test_collect_commits(
     mock_openai: MagicMock,  # pylint: disable=unused-argument
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
-    github_output_path: str,  # pylint: disable=unused-argument, disable=redefined-outer-name
+    github_output_path: str,  # pylint: disable=unused-argument,redefined-outer-name
 ) -> None:
     """Test collect_commits returns a list of commit dictionaries."""
     env = valid_env()
@@ -322,7 +320,7 @@ def test_run_status_success(
     github_output_path: str,  # pylint: disable=redefined-outer-name
 ) -> None:
     """Test that DailyReporter.run sets report_status=success on successful run."""
-    env = valid_env()
+    env = valid_env(github_output_path=github_output_path)
     for k, v in env.items():
         os.environ[k] = v
     mock_check_env_vars.return_value = env
