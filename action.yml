@@ -4,7 +4,7 @@ author: "Joerg Heinrich"
 branding:
   icon: "book"
   color: "blue"
-  
+
 inputs:
   GITHUB_TOKEN:
     description: "GitHub Token"
