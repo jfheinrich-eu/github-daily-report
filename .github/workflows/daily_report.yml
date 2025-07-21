@@ -66,7 +66,7 @@ jobs:
         run: |
           echo "Creating report file with date..."
           REPORT_NAME="daily-report-$(date +'%Y-%m-%d').md"
-          report_file_name="${REPORT_NAME}""
+          report_file_name="${REPORT_NAME}"
           echo "${{ steps.daily_report.outputs.report }}" >> "$report_file_name"
           echo "Report file created: $report_file_name"
           echo "report_file_created=success" >> $GITHUB_OUTPUT
