@@ -1,0 +1,46 @@
+name: auto-commit-push
+description: "Automatically commits and pushes changes to the repository."
+author: "Joerg Heinrich"
+branding:
+  icon: git-commit
+  color: green
+
+inputs:
+  RUN_ID:
+    description: "The run ID of the GitHub Actions workflow."
+    required: true
+    default: "${{ github.run_id }}"
+  REF_NAME:
+    description: "The reference name of the GitHub Actions workflow."
+    required: true
+    default: "${{ github.ref_name }}"
+
+outputs:
+  auto-commit-push:
+    description: "The result of the auto-commit-push action."
+    value: ${{ steps.Auto_Commit_and_Push.outputs.auto-commit-push }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Auto Commit and Push
+      id: Auto_Commit_and_Push
+      env:
+        RUN_ID: ${{ inputs.RUN_ID }}
+        REF_NAME: ${{ inputs.REF_NAME }}
+      shell: bash
+      run: |
+        set -e
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        branch="changelog-update-${{ env.RUN_ID }}"
+        git checkout -b "$branch"
+        git add CHANGELOG.md README.md
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+          echo "auto-commit-push=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        git commit -m "docs: update CHANGELOG.md and README.md for ${{ env.REF_NAME }} [skip ci]"
+        git push origin HEAD:refs/heads/"$branch"
+        echo "auto-commit-push=true" >> $GITHUB_OUTPUT
