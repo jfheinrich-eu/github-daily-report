@@ -195,3 +195,4 @@ cython_debug/
 .cursorindexingignore
 2025-06-22-owner-repo.md
 requirements.txt
+init-step-security.md

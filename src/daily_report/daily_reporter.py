@@ -44,8 +44,18 @@ class DailyReporter:
         try:
             env = check_env_vars()
         except EnvCheckError as exc:
-            print("❌ Invalid configuration of environment variables:")
-            print(exc)
+            github_output = os.environ.get("GITHUB_OUTPUT")
+            if github_output:  # pragma: no cover
+                with open(github_output, "a", encoding="utf-8") as fh:
+                    fh.write("report_status=failure\n")
+            else:  # pragma: no cover
+                print(
+                    """⚠️ Warning: GITHUB_OUTPUT environment variable is not set.
+                    Skipping status update.""",
+                    file=sys.stderr,
+                )
+            print("❌ Invalid configuration of environment variables:", file=sys.stderr)
+            print(exc, file=sys.stderr)
             sys.exit(1)
 
         self.github_token: str = env["GITHUB_TOKEN"]
@@ -144,7 +154,7 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
             server.sendmail(self.email_sender, self.email_receiver, msg.as_string())
 
     @staticmethod
-    def _sanitize_filename(filename: str) -> str:
+    def sanitize_filename(filename: str) -> str:
         """Sanitize filename to prevent path injection."""
         # Remove directory components and allow only safe chars
         filename = os.path.basename(filename)
@@ -153,26 +163,53 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
 
     def run(self) -> None:
         """Runs the report generation and email sending process."""
-        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        # Sanitize repo_name for filename to prevent path injection
-        safe_repo_name = self._sanitize_filename(self.repo_name.replace("/", "-"))
-        filename = f"{today}-{safe_repo_name}.md"
-        os.environ["DAILY_REPORT_FILENAME"] = filename
+        try:
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            # Sanitize repo_name for filename to prevent path injection
+            safe_repo_name = self.sanitize_filename(self.repo_name.replace("/", "-"))
+            filename = f"{today}-{safe_repo_name}.md"
+            os.environ["DAILY_REPORT_FILENAME"] = filename
 
-        subject = f"GitHub Daily Report – {self.repo_name} – {today}"
+            subject = f"GitHub Daily Report – {self.repo_name} – {today}"
 
-        commit_data = self.collect_commits()
-        report_md = self.analyze_commits_with_gpt(commit_data)
-        self.send_email(subject, report_md)
+            commit_data = self.collect_commits()
+            report_md = self.analyze_commits_with_gpt(commit_data)
+            self.send_email(subject, report_md)
 
-        # Save report to file (safe filename)
-        with open(filename, "w", encoding="utf-8") as reportfile:
-            reportfile.write(report_md)
+            # Save report to file (safe filename)
+            with open(filename, "w", encoding="utf-8") as reportfile:
+                reportfile.write(report_md)
 
-        # Provide output for GitHub Actions
-        github_output = os.environ.get("GITHUB_OUTPUT")
-        if github_output:
-            with open(github_output, "a", encoding="utf-8") as fh:
-                print(f"report<<EOF\n{report_md}\nEOF", file=fh)
+            # Provide output for GitHub Actions
+            github_output = os.environ.get("GITHUB_OUTPUT")
+            if github_output:  # pragma: no cover
+                with open(github_output, "a", encoding="utf-8") as fh:
+                    print(f"report<<EOF\n{report_md}\nEOF", file=fh)
 
-        print("✅ Report generated and sent.")
+            print("✅ Report generated and sent.")
+        except (ValueError, smtplib.SMTPException, OSError) as exc:
+            print(f"❌ Error during report generation: {exc}", file=sys.stderr)
+            github_output = os.environ.get("GITHUB_OUTPUT")
+            if github_output:  # pragma: no cover
+                with open(github_output, "a", encoding="utf-8") as fh:
+                    fh.write("report_status=failure\n")
+            else:  # pragma: no cover
+                print(
+                    """⚠️ GITHUB_OUTPUT environment variable is not set.
+                    Unable to write failure status.""",
+                    file=sys.stderr,
+                )
+            sys.exit(1)
+        else:
+            github_output = os.environ.get("GITHUB_OUTPUT")
+            if github_output:  # pragma: no cover
+                with open(github_output, "a", encoding="utf-8") as fh:
+                    fh.write("report_status=success\n")
+            else:  # pragma: no cover
+                print(
+                    """⚠️ GITHUB_OUTPUT environment variable is not set.
+                    Unable to write success status.""",
+                    file=sys.stderr,
+                )
+            print("✅ Report generation completed successfully.")
+            sys.exit(0)
