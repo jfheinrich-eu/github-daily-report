@@ -66,7 +66,7 @@ def test_analyze_commits_with_gpt_empty(
     mock_openai: MagicMock,  # pylint: disable=unused-argument
     mock_github: MagicMock,  # pylint: disable=unused-argument
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
-    github_output_path: str,  # pylint: disable=unused-argument, disable=redefined-outer-name
+    github_output_path: str,  # pylint: disable=unused-argument,redefined-outer-name
 ) -> None:
     """Test analyze_commits_with_gpt returns correct message for empty commit list."""
     env = valid_env()
@@ -178,7 +178,7 @@ def test_run_exception_handling(
     mock_openai: MagicMock,
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
-    github_output_path: str,  # pylint: disable=redefined-outer-name, disable=redefined-outer-name
+    github_output_path: str,  # pylint: disable=redefined-outer-name,redefined-outer-name
 ) -> None:
     """Test that DailyReporter.run handles exceptions and sets report_status=failure."""
     env = valid_env(github_output_path=github_output_path)

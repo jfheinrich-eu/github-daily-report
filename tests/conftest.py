@@ -4,7 +4,7 @@ import builtins
 import os
 import tempfile
 from collections.abc import Generator
-from typing import Any
+from typing import IO, Any
 
 import pytest
 
@@ -57,7 +57,7 @@ def valid_env(
 
 def patched_open(
     file: str, *args: object, mode: str = "r", **kwargs: object
-) -> Generator[str, None, None]:
+) -> IO[Any]:
     """Open function that raises OSError only for the report file."""
     # Only raise OSError when trying to write the report file
     report_filename = os.environ.get("DAILY_REPORT_FILENAME")

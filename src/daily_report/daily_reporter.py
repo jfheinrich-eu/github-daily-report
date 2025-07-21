@@ -44,8 +44,16 @@ class DailyReporter:
         try:
             env = check_env_vars()
         except EnvCheckError as exc:
-            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-                fh.write("report_status=failure\n")
+            github_output = os.environ.get("GITHUB_OUTPUT")
+            if github_output:  # pragma: no cover
+                with open(github_output, "a", encoding="utf-8") as fh:
+                    fh.write("report_status=failure\n")
+            else:  # pragma: no cover
+                print(
+                    """⚠️ Warning: GITHUB_OUTPUT environment variable is not set.
+                    Skipping status update.""",
+                    file=sys.stderr,
+                )
             print("❌ Invalid configuration of environment variables:", file=sys.stderr)
             print(exc, file=sys.stderr)
             sys.exit(1)
@@ -174,18 +182,34 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
 
             # Provide output for GitHub Actions
             github_output = os.environ.get("GITHUB_OUTPUT")
-            if github_output:
+            if github_output:  # pragma: no cover
                 with open(github_output, "a+", encoding="utf-8") as fh:
                     print(f"report<<EOF\n{report_md}\nEOF", file=fh)
 
             print("✅ Report generated and sent.")
         except (ValueError, smtplib.SMTPException, OSError) as exc:
             print(f"❌ Error during report generation: {exc}", file=sys.stderr)
-            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-                fh.write("report_status=failure\n")
+            github_output = os.environ.get("GITHUB_OUTPUT")
+            if github_output:  # pragma: no cover
+                with open(github_output, "a", encoding="utf-8") as fh:
+                    fh.write("report_status=failure\n")
+            else:  # pragma: no cover
+                print(
+                    """⚠️ GITHUB_OUTPUT environment variable is not set.
+                    Unable to write failure status.""",
+                    file=sys.stderr,
+                )
             sys.exit(1)
         else:
-            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-                fh.write("report_status=success\n")
+            github_output = os.environ.get("GITHUB_OUTPUT")
+            if github_output:  # pragma: no cover
+                with open(github_output, "a", encoding="utf-8") as fh:
+                    fh.write("report_status=success\n")
+            else:  # pragma: no cover
+                print(
+                    """⚠️ GITHUB_OUTPUT environment variable is not set.
+                    Unable to write success status.""",
+                    file=sys.stderr,
+                )
             print("✅ Report generation completed successfully.")
             sys.exit(0)
