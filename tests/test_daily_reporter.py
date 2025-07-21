@@ -85,7 +85,7 @@ def test_analyze_commits_with_gpt_empty_response(
     mock_openai: MagicMock,
     mock_github: MagicMock,  # pylint: disable=unused-argument
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
-    github_output_path: str,  # pylint: disable=unused-argument, disable=redefined-outer-name
+    github_output_path: str,  # pylint: disable=unused-argument,redefined-outer-name
 ) -> None:
     """Test analyze_commits_with_gpt returns correct message for empty GPT response."""
     env = valid_env()
@@ -110,7 +110,7 @@ def test_send_email_password_missing(
     mock_openai: MagicMock,  # pylint: disable=unused-argument
     mock_github: MagicMock,  # pylint: disable=unused-argument
     mock_check_env_vars: MagicMock,  # pylint: disable=unused-argument
-    github_output_path: str,  # pylint: disable=unused-argument, disable=redefined-outer-name
+    github_output_path: str,  # pylint: disable=unused-argument,redefined-outer-name
 ) -> None:
     """Test send_email raises ValueError if EMAIL_PASSWORD is missing."""
     env = valid_env()
@@ -158,7 +158,7 @@ def test_collect_commits(
 @patch("daily_report.daily_reporter.check_env_vars")
 def test_init_env_error(
     mock_check_env_vars: MagicMock,
-    github_output_path: str,  # pylint: disable=unused-argument, disable=redefined-outer-name
+    github_output_path: str,  # pylint: disable=unused-argument,redefined-outer-name
 ) -> None:
     """Test that DailyReporter exits if environment validation fails."""
     mock_check_env_vars.side_effect = EnvCheckError("fail")
@@ -178,7 +178,7 @@ def test_run_exception_handling(
     mock_openai: MagicMock,
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
-    github_output_path: str,  # pylint: disable=redefined-outer-name,redefined-outer-name
+    github_output_path: str,  # pylint: disable=redefined-outer-name
 ) -> None:
     """Test that DailyReporter.run handles exceptions and sets report_status=failure."""
     env = valid_env(github_output_path=github_output_path)
