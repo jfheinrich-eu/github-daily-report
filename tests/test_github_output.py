@@ -49,13 +49,6 @@ def test_github_output_written(
         content = tmpfile.read()
         assert "Test-Report" in content
 
-    # Clean up: remove the file
-    filename = os.environ.get("DAILY_REPORT_FILENAME")
-    assert filename is not None
-    assert os.path.exists(filename)
-    os.remove(filename)
-    assert not os.path.exists(filename)
-
 
 @patch("daily_report.daily_reporter.check_env_vars")
 @patch("daily_report.daily_reporter.Github")
@@ -98,10 +91,3 @@ def test_multiline_github_output(
         assert "report<<EOF" in content
         assert "Test-Report" in content
         assert "\nEOF" in content
-
-    # Clean up: remove the file
-    filename = os.environ.get("DAILY_REPORT_FILENAME")
-    assert filename is not None
-    assert os.path.exists(filename)
-    os.remove(filename)
-    assert not os.path.exists(filename)

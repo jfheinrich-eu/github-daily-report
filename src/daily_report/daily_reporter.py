@@ -175,7 +175,7 @@ Analyze possible issues, TODOs, or code smells and provide recommendations.
             # Provide output for GitHub Actions
             github_output = os.environ.get("GITHUB_OUTPUT")
             if github_output:
-                with open(github_output, "a", encoding="utf-8") as fh:
+                with open(github_output, "a+", encoding="utf-8") as fh:
                     print(f"report<<EOF\n{report_md}\nEOF", file=fh)
 
             print("✅ Report generated and sent.")

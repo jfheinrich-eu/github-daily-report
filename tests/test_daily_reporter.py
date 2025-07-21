@@ -15,16 +15,16 @@ from tests.conftest import selective_open, selective_open_github_output_path, va
 @patch("daily_report.daily_reporter.check_env_vars")
 @patch("daily_report.daily_reporter.Github")
 @patch("daily_report.daily_reporter.OpenAI")
-@patch("daily_report.daily_reporter.open")
+# @patch("daily_report.daily_reporter.open")
 def test_run_sends_email(
-    mock_open: MagicMock,
+    # mock_open: MagicMock,
     mock_openai: MagicMock,
     mock_github: MagicMock,
     mock_check_env_vars: MagicMock,
     github_output_path: str,  # pylint: disable=redefined-outer-name
 ) -> None:
     """Test that DailyReporter.run sends an email and writes the report file."""
-    env = valid_env()
+    env = valid_env(github_output_path=github_output_path)
     for k, v in env.items():
         os.environ[k] = v
     mock_check_env_vars.return_value = env
@@ -43,7 +43,7 @@ def test_run_sends_email(
         MagicMock(message=MagicMock(content="Test-Report"))
     ]
 
-    mock_open.return_value.__enter__.return_value = MagicMock()
+    # mock_open.return_value.__enter__.return_value = MagicMock()
 
     with (
         patch("builtins.print"),
@@ -53,10 +53,10 @@ def test_run_sends_email(
             with patch("daily_report.daily_reporter.smtplib.SMTP"):
                 reporter = DailyReporter()
                 reporter.run()
-            with open(github_output_path, encoding="utf-8") as f:
-                content = f.read()
-                assert "report" in content
         mock_exit.assert_called_once()
+        with open(github_output_path, encoding="utf-8") as f:
+            content = f.read()
+            assert "report" in content
 
 
 @patch("daily_report.daily_reporter.check_env_vars")
