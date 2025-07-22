@@ -1,6 +1,10 @@
 name: "GitHub Daily Report"
 description: "Generates a daily GitHub report and returns it as an output."
 author: "Joerg Heinrich"
+branding:
+  icon: "book"
+  color: "blue"
+
 inputs:
   GITHUB_TOKEN:
     description: "GitHub Token"

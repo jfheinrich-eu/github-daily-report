@@ -1,6 +1,9 @@
 name: Update README Action Reference
 description: "Updates the README file with the latest action tag."
 author: "Joerg Heinrich"
+branding:
+  icon: "file-text"
+  color: "green"
 
 inputs:
   README_FILE:
