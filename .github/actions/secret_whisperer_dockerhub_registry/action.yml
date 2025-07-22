@@ -1,6 +1,9 @@
 name: secret_whisperer_dockerhub_registry
 description: "This action manages secrets for GitHub Actions workflows."
 author: "Joerg Heinrich"
+branding:
+  icon: "lock"
+  color: "purple"
 
 inputs:
   PSONO_API_KEY_ID:
