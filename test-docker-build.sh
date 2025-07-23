@@ -4,13 +4,13 @@
 BUILDER_NAME="mybuilder"
 docker run --privileged --rm tonistiigi/binfmt --install all >/dev/null
 
-builder="$(docker buildx ls 2>/dev/null | grep $BUILDER_NAME)"
+builder="$(docker buildx ls 2>/dev/null | grep -w "$BUILDER_NAME")"
 if [ -z "$builder" ]; then
     echo "Creating a new buildx builder named '$BUILDER_NAME'."
-    docker buildx create --name $BUILDER_NAME --use --driver docker-container
+    docker buildx create --name "$BUILDER_NAME" --use --driver docker-container
 else
     echo "Using existing buildx builder: $builder"
-    docker buildx use $BUILDER_NAME
+    docker buildx use "$BUILDER_NAME"
 fi
 
 if [ -z "$1" ] || [ "$1" = "multiarch" ]; then
