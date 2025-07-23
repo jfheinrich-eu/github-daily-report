@@ -44,6 +44,17 @@ FROM python:3.12-alpine AS builder
 COPY --from=final_base /opt/git /opt/git
 ENV PATH="/opt/git/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/git/lib"
+RUN apk add --no-cache \
+    build-base \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    zlib-dev \
+    sqlite-dev \
+    curl-dev \
+    expat-dev \
+    gettext-dev \
+    linux-headers
 COPY pyproject.toml poetry.lock* /project/
 COPY src/ /project/src/
 COPY src /app
