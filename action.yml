@@ -40,7 +40,7 @@ outputs:
     description: "Status of the report generation (success or failure)"
 runs:
   using: "docker"
-  image: "docker.io/jfheinrich/github-daily-report:latest"
+  image: Dockerfile
   env:
     GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
     REPO_NAME: ${{ inputs.REPO_NAME }}
