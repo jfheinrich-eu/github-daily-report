@@ -66,7 +66,7 @@ jobs:
           allowed-endpoints: |
             tech.jfheinrich.eu:443
 
-      - uses: jfheinrich-eu/psono-secret-whisperer@61fb8cf9ca70b1bf0bf832da4af5d8ae7a665613 # v1.0.0
+      - uses: jfheinrich-eu/psono-secret-whisperer@b42169213e4392bdd2f1d5a7be76bfeb8c246074 # v1.1.0
         id: psono-secrets
         with:
           ci_api_key_id: ${{ secrets.PSONO_API_KEY_ID }}
