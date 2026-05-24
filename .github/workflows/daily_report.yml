@@ -8,9 +8,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: daily-report
+  cancel-in-progress: false
+
 jobs:
   daily-report:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -63,16 +68,17 @@ jobs:
       - name: Create report file with date
         id: create_report_file
         if: ${{ steps.daily_report.outputs.report_status == 'success' }}
+        env:
+          REPORT_CONTENT: ${{ steps.daily_report.outputs.report }}
         run: |
           echo "Creating report file with date..."
           REPORT_NAME="daily-report-$(date +'%Y-%m-%d').md"
-          report_file_name="${REPORT_NAME}"
-          echo "${{ steps.daily_report.outputs.report }}" >> "$report_file_name"
-          echo "Report file created: $report_file_name"
-          echo "report_file_created=success" >> $GITHUB_OUTPUT
-          echo "report_file_name=$report_file_name" >> $GITHUB_OUTPUT
+          printf '%s\n' "${REPORT_CONTENT}" > "${REPORT_NAME}"
+          echo "Report file created: ${REPORT_NAME}"
+          echo "report_file_created=success" >> "$GITHUB_OUTPUT"
+          echo "report_file_name=${REPORT_NAME}" >> "$GITHUB_OUTPUT"
       - name: Upload Daily Report
-        if: ${{ steps.daily_report.outputs.report_status == 'success' }} && ${{ steps.create_report_file.outputs.report_file_created == 'success' }}
+        if: ${{ steps.daily_report.outputs.report_status == 'success' && steps.create_report_file.outputs.report_file_created == 'success' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: daily-report
